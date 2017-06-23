@@ -17,6 +17,7 @@ spec:
   - name: {{ .Chart.Name }}
     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
+    workingDir: {{ default "/" .Values.workingDir }}
     env:
     {{- range $key, $value := .Values.args }}
     - name: {{ $key  | upper }}
@@ -40,7 +41,21 @@ spec:
     resources:
 {{ toYaml .Values.resources | indent 6 }}
 {{- if .Values.nodeSelector }}
+{{- if eq .Values.type "fileio" }}
+    volumeMounts:
+    - name: workdir
+      mountPath: {{ .Values.workingDir }}
+{{- end }}
   nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 4 }}
     {{ end }}
+{{- if .Values.needsPrepare }}
+  initContainers:
+{{ include "init_container" . | indent 4 }}
+{{- end -}}
+{{- if eq .Values.type "fileio" }}
+  volumes:
+  - name: workdir
+    emptyDir: {}
+{{- end -}}
 {{- end -}}

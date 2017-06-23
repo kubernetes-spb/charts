@@ -4,8 +4,10 @@
 
 type: cpu # other possible values: [fileio, memory, threads, mutex]
 installationType: pod
+needsPrepare: false
 replicaCount: 1
 restartPolicy: Always
+workingDir: /workdir
 image:
   repository: quay.io/evilmartians/sysbench
   tag: v1.0.7
@@ -14,10 +16,23 @@ resources:
   limits:
     cpu: 1
     memory: 1Gi
+
 args:
   threads: 1
   rate: 0
   time: 0
   report_interval: 1
+
 cpu:
   cpu_max_prime: 20000
+
+fileio:
+  file_total_size: 15G
+  file_num: 1
+  file_test_mode: rndrw
+  file_io_mode: sync
+
+init_containers:
+  fileio:
+    file_total_size: 15G
+    file_num: 1
