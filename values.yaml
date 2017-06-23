@@ -16,7 +16,6 @@ resources:
     memory: 1Gi
 args:
   threads: 1
-  warmup_time: 1
   rate: 0
   time: 0
   report_interval: 1

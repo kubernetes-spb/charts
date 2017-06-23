@@ -3,6 +3,14 @@ Common pod spec
 */}}
 {{- define "podspec" -}}
 {{- $type := .Values.type -}}
+metadata:
+  name: {{ template "fullname" . }}-{{ .Values.type }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    type: {{ .Values.type }}
 spec:
   restartPolicy: {{ .Values.restartPolicy | default "Always" }}
   containers:

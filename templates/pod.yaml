@@ -1,13 +1,5 @@
 {{- if eq .Values.installationType "pod" }}
 apiVersion: v1
 kind: Pod
-metadata:
-  name: {{ template "fullname" . }}-{{ .Values.type }}
-  labels:
-    app: {{ template "name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-    type: {{ .Values.type }}
 {{ template "podspec" . }}
 {{ end }}
