@@ -1,0 +1,24 @@
+# Default values for sysbench.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+type: cpu # other possible values: [fileio, memory, threads, mutex]
+installationType: pod
+replicaCount: 1
+restartPolicy: Always
+image:
+  repository: quay.io/evilmartians/sysbench
+  tag: latest
+  pullPolicy: Always
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+args:
+  threads: 1
+  warmup_time: 1
+  rate: 0
+  time: 0
+  report_interval: 1
+cpu:
+  cpu_max_prime: 20000
