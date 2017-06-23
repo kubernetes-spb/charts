@@ -8,8 +8,8 @@ replicaCount: 1
 restartPolicy: Always
 image:
   repository: quay.io/evilmartians/sysbench
-  tag: latest
-  pullPolicy: Always
+  tag: v1.0.7
+  pullPolicy: IfNotPresent
 resources:
   limits:
     cpu: 1
