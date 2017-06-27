@@ -1,0 +1,7 @@
+FROM alpine:3.6
+MAINTAINER Maxim Filatov <bregor@evilmartians.com>
+
+RUN apk -U upgrade && \
+    apk add -u pgbouncer
+
+EXPOSE 5432

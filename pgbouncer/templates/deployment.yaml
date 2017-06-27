@@ -1,0 +1,87 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.exporter.enabled }}
+        prometheus.io/path: /metrics
+        prometheus.io/port: {{ .Values.exporter.listen_port | quote }}
+        prometheus.io/scrape: "true"
+        {{- end }}
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "fullname" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.pgbouncer.listen_port }}
+          command:
+            - /usr/bin/pgbouncer
+          args:
+            - -upgbouncer
+            - /etc/pgbouncer/pgbouncer.ini
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pgbouncer
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.pgbouncer.listen_port }}
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.pgbouncer.listen_port }}
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+{{- if .Values.exporter.enabled }}
+        - name: {{ .Chart.Name }}-exporter
+          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}"
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.exporter.listen_port }}
+          command:
+            - /pgbouncer_exporter
+          args:
+            - -pgBouncer.connectionString=postgres://pgbouncer:pgbouncer@127.0.0.1:{{ .Values.pgbouncer.listen_port }}/pgbouncer?sslmode=disable
+            - -web.listen-address={{ .Values.exporter.listen_address }}:{{ .Values.exporter.listen_port }}
+          livenessProbe:
+            httpGet:
+              port: {{ .Values.exporter.listen_port }}
+              path: /metrics
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              port: {{ .Values.exporter.listen_port }}
+              path: /metrics
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+{{ end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

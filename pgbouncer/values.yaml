@@ -1,0 +1,62 @@
+replicaCount: 1
+image:
+  repository: quay.io/evilmartians/pgbouncer
+  tag: v1.7.2
+  pullPolicy: IfNotPresent
+service:
+  nxame: pgbouncer
+  type: ClusterIP
+  externalPort: 5432
+resources:
+  limits:
+   cpu: 100m
+   memory: 128Mi
+  requests:
+   cpu: 100m
+   memory: 128Mi
+
+pgbouncer:
+  admin_users: pgbouncer
+  stats_users: pgbouncer
+  listen_addr: 0.0.0.0
+  listen_port: 5432
+  auth_type: md5
+  auth_file: /etc/pgbouncer/users.txt
+  pool_mode: session
+  server_reset_query: DISCARD ALL
+  max_client_conn: 1500
+  default_pool_size: 100
+  ignore_startup_parameters: extra_float_digits
+  server_idle_timeout: 600
+
+databases:
+  '*':
+    auth_user: pgbouncer
+    dbname: pgbouncer
+  # production:
+  #   dbname: production
+  #   host: postgresql.hosted.svc.kubernetes.local
+  #   port: 5432
+  #   auth_user: production
+
+users:
+  - name: pgbouncer
+    password: pgbouncer
+  # - name: production
+  #   password: prodpassword
+
+exporter:
+  enabled: true
+  listen_address: 0.0.0.0
+  listen_port: 9127
+  image:
+    repository: quay.io/evilmartians/pgbouncer_exporter
+    tag: v0.0.1
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

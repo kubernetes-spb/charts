@@ -1,0 +1,13 @@
+FROM alpine:3.6
+MAINTAINER Maxim Filatov <bregor@evilmartians.com>
+
+ENV GOOS=linux CGO_ENABLED=0 GOBIN=/
+
+RUN apk -U upgrade && \
+    apk add -t build-depends -u git go musl-dev && \
+    go get -v -d github.com/larseen/pgbouncer_exporter && \
+    go build  --ldflags '-s -w --extldflags "-static"' github.com/larseen/pgbouncer_exporter && \
+    rm -fr /root/go && \
+    apk del build-depends
+
+EXPOSE 9127
