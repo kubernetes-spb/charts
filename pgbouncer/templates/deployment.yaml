@@ -79,7 +79,7 @@ spec:
             timeoutSeconds: 1
             periodSeconds: 10
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+{{ toYaml .Values.exporter.resources | indent 12 }}
 {{ end }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
