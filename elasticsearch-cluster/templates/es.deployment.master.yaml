@@ -1,0 +1,77 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-master
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: master
+spec:
+  replicas: {{ .Values.elasticsearch.masterReplicasCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+        component: master
+      annotations:
+        scheduler.beta.kubernetes.io/affinity: |
+          {
+            "podAntiAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": [
+                {
+                  "labelSelector": {
+                    "matchLabels": {
+                        "component": "master",
+                        "app": "{{ template "fullname" . }}"
+                      }
+                  },
+                  "topologyKey": "kubernetes.io/hostname"
+                }
+              ]
+            }
+          }
+    spec:
+      containers:
+      - name: elasticsearch-master
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+              - SYS_RESOURCE
+        image: {{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}
+        imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+        resources:
+{{ toYaml .Values.elasticsearch.masterResources | indent 10 }}
+        readinessProbe:
+          tcpSocket:
+            port: transport
+          timeoutSeconds: 1
+          successThreshold: 3
+        env:
+        - name: TRANSPORT_PORT
+          value: "{{ .Values.elasticsearch.transportPort }}"
+        - name: CLUSTER_NAME
+          value: "{{ .Values.elasticsearch.clusterName }}"
+        - name: NODE_MASTER
+          value: "true"
+        - name: NODE_DATA
+          value: "false"
+        - name: HTTP_ENABLED
+          value: "false"
+        - name: DISCOVERY_SERVICE
+          value: "{{ .Release.Name }}-discovery"
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"
+        - name: ES_JAVA_OPTS
+          value: "-Xms{{ .Values.elasticsearch.masterJavaHeap }} -Xmx{{ .Values.elasticsearch.masterJavaHeap }}"
+        ports:
+        - name: transport
+          containerPort: {{ .Values.elasticsearch.transportPort }}
+          protocol: TCP

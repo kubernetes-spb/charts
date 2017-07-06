@@ -1,0 +1,39 @@
+{{- if .Values.curator.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-curator
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: curator
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+        component: curator
+    spec:
+      containers:
+      - name: elasticsearch-curator
+        image: {{ .Values.curator.image.repository }}:{{ .Values.curator.image.tag }}
+        imagePullPolicy: {{ .Values.curator.image.pullPolicy }}
+        resources:
+{{ toYaml .Values.curator.resources | indent 10 }}
+        args:
+        - /usr/local/bin/curator-cron
+        - --host=http://{{ .Release.Name }}
+        - --port={{ .Values.elasticsearch.port }}
+        - delete_indices
+        - --filter_list='[{"filtertype":"age","source":"name","direction":"older","timestring":"%Y.%m.%d","unit":"days","unit_count":$(REMOVE_INDICES_OLDER_THAN_DAYS)},{"filtertype":"pattern","kind":"prefix","value":"logstash-"}]'
+        env:
+        - name: REMOVE_INDICES_OLDER_THAN_DAYS
+          value: "{{ .Values.curator.removeOlderThanDays }}"
+{{- end }}

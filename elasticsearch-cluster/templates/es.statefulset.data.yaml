@@ -1,0 +1,98 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-data
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: data
+spec:
+  replicas: {{ .Values.elasticsearch.dataReplicasCount }}
+  serviceName: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+        component: data
+      annotations:
+        scheduler.beta.kubernetes.io/affinity: |
+          {
+            "podAntiAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": [
+                {
+                  "labelSelector": {
+                    "matchLabels": {
+                        "component": "data",
+                        "app": "{{ template "fullname" . }}"
+                      }
+                  },
+                  "topologyKey": "kubernetes.io/hostname"
+                }
+              ]
+            }
+          }
+    spec:
+      containers:
+      - name: elasticsearch-data
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+              - SYS_RESOURCE
+        image: {{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}
+        imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+        resources:
+{{ toYaml .Values.elasticsearch.dataResources | indent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+          timeoutSeconds: 1
+          successThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /_cluster/health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 360
+          timeoutSeconds: 2
+        env:
+        - name: TRANSPORT_PORT
+          value: "{{ .Values.elasticsearch.transportPort }}"
+        - name: HTTP_PORT
+          value: "{{ .Values.elasticsearch.port }}"
+        - name: CLUSTER_NAME
+          value: "{{ .Values.elasticsearch.clusterName }}"
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_DATA
+          value: "true"
+        - name: HTTP_ENABLED
+          value: "true"
+        - name: NAMESPACE
+          value: "{{ .Release.Namespace }}"
+        - name: ES_JAVA_OPTS
+          value: "-Xms{{ .Values.elasticsearch.dataJavaHeap }} -Xmx{{ .Values.elasticsearch.dataJavaHeap }}"
+        ports:
+        - name: transport
+          containerPort: {{ .Values.elasticsearch.transportPort }}
+          protocol: TCP
+        - name: http
+          containerPort: {{ .Values.elasticsearch.port }}
+          protocol: TCP
+        volumeMounts:
+        - name: storage
+          mountPath: /usr/share/elasticsearch/data
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: {{.Values.elasticsearch.storage.class}}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{.Values.elasticsearch.storage.amount}}

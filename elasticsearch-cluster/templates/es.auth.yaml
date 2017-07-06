@@ -1,0 +1,8 @@
+{{- if and .Values.ingress.enabled .Values.ingress.passwords }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-auth
+data:
+  auth: {{ .Values.ingress.passwords }}
+{{- end }}

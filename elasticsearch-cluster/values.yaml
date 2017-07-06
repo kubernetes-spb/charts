@@ -1,0 +1,95 @@
+elasticsearch:
+  clusterName: elasticsearch
+  masterReplicasCount: 3 # minimum 3 masters recommended
+  dataReplicasCount: 3
+
+  port: 9200
+  transportPort: 9300
+  image:
+    repository: fulldive/elasticsearch-kubernetes
+    tag: 5.4.2
+    pullPolicy: IfNotPresent
+
+  masterJavaHeap: 512m # half of allowed memory to avoid OOM kill
+  masterResources:
+    requests:
+      memory: 1Gi
+    limits:
+      memory: 1Gi
+      cpu: 100m
+
+  dataJavaHeap: 1G
+  dataResources:
+    requests:
+      memory: 2Gi
+    limits:
+      memory: 2Gi
+      cpu: 300m
+
+  storage:
+    class: standard
+    amount: 10Gi
+
+# set to 'true' if you want to create ingress
+ingress:
+  enabled: false
+  host: elasticsearch.example.com
+  # 3nd level domain for kibana instead of `elasticsearch.example.com/kibana`
+  # due to bug with kibana's "server.basepath" in latests releaes
+  kibanaHost: kibana.example.com
+  type: nginx
+  # enable if you have "kube-lego" instance
+  legoSupported: false
+  # base64 encoded string with basic auth passwords
+  # creation example:
+  # $ htpasswd -c passwords.txt <username>
+  # $ base64 -i passwords.txt
+  #
+  # longin:user, password:password
+  passwords: "dXNlcjokYXByMSRoa2xiNUxWViRwbjVCN01ySXEzdkIzVkszOTk2d1UxCg=="
+
+# set to 'true' if you want to deploy kibana instace
+kibana:
+  enabled: false
+  port: 5601
+  replicasCount: 1
+  image:
+    repository: docker.elastic.co/kibana/kibana
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 100m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 1Gi
+# set to 'true' if you want to deploy ES web UI
+# https://github.com/mobz/elasticsearch-head
+# it will be accessible at `//lasticsearch.example.comv/head`
+head:
+  enabled: false
+  port: 80
+  replicasCount: 1
+  resources:
+    limits:
+      cpu: 10m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+
+# enable if yo want to delete old indexes (ex.: fluentd logs)
+curator:
+  enabled: false
+  removeOlderThanDays: 7
+  image:
+    repository: fulldive/elasticsearch-curator
+    tag: 5.1.0
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi

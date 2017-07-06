@@ -1,0 +1,31 @@
+{{- if and .Values.ingress.enabled .Values.kibana.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-kibana
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.type }}
+{{- if .Values.ingress.passwords }}
+    ingress.kubernetes.io/auth-type: basic
+    ingress.kubernetes.io/auth-secret: {{ .Release.Name }}-auth
+    ingress.kubernetes.io/auth-realm: "Authentication Required"
+{{- end }}
+{{- if .Values.ingress.legoSupported }}
+    kubernetes.io/tls-acme: "true"
+{{- end }}
+spec:
+{{- if .Values.ingress.legoSupported }}
+  tls:
+  - secretName: {{ .Release.Name }}-kibana-tls
+    hosts:
+    - {{ .Values.ingress.kibanaHost }}
+{{- end }}
+  rules:
+  - host: {{ .Values.ingress.kibanaHost }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ .Release.Name }}-kibana
+          servicePort: {{ .Values.kibana.port }}
+{{- end }}

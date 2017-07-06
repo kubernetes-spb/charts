@@ -1,0 +1,17 @@
+{{- if .Values.kibana.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kibana
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: kibana
+spec:
+  ports:
+  - port: {{ .Values.kibana.port }}
+    protocol: TCP
+  selector:
+    app: {{ template "fullname" . }}
+    component: kibana
+{{- end }}

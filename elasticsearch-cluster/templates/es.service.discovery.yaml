@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-discovery
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: master
+spec:
+  clusterIP: None
+  ports:
+  - name: transport
+    port: {{ .Values.elasticsearch.transportPort }}
+    protocol: TCP
+  selector:
+    app: {{ template "fullname" . }}
+    component: master

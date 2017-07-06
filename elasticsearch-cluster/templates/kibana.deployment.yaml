@@ -1,0 +1,48 @@
+{{- if .Values.kibana.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-kibana
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: kibana
+spec:
+  replicas: {{ .Values.kibana.replicasCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+        component: kibana
+    spec:
+      containers:
+      - name: elasticsearch-kibana
+        #### should be equal to ES version
+        image: {{ .Values.kibana.image.repository }}:{{ .Values.elasticsearch.image.tag }}
+        imagePullPolicy: {{ .Values.kibana.image.pullPolicy }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: ui
+          timeoutSeconds: 1
+          successThreshold: 1
+        resources:
+{{ toYaml .Values.kibana.resources | indent 10 }}
+        env:
+          - name: ELASTICSEARCH_URL
+            value: "http://{{ .Release.Name }}:{{ .Values.elasticsearch.port }}"
+          - name: SERVER_PORT
+            value: "{{ .Values.kibana.port }}"
+          - name: NODE_OPTIONS
+            value: "--max-old-space-size=200" # prevent OOM by limiting node garbage collector
+        ports:
+        - containerPort: {{ .Values.kibana.port }}
+          name: ui
+          protocol: TCP
+{{- end }}

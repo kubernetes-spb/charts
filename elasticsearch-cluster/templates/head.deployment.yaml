@@ -1,0 +1,63 @@
+{{- if .Values.head.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-head
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
+    component: head
+spec:
+  replicas: {{ .Values.head.replicasCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+        component: head
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "clone",
+            "image": "busybox",
+            "command": ["mv", "-f", "/workdir/elasticsearch-head/_site", "/workdir/head"],
+            "volumeMounts": [{
+              "name": "webroot",
+              "mountPath": "/workdir"
+            }],
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ]'
+    spec:
+      containers:
+      - name: elasticsearch-head
+        image: nginx:alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+{{ toYaml .Values.head.resources | indent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /head
+            port: ui
+          timeoutSeconds: 1
+          successThreshold: 1
+        env:
+        - name: NGINX_PORT
+          value: "{{ .Values.head.port }}"
+        ports:
+        - containerPort: {{ .Values.head.port }}
+          protocol: TCP
+          name: ui
+        volumeMounts:
+        - name: webroot
+          mountPath: /usr/share/nginx/html
+      volumes:
+        - name: webroot
+          gitRepo:
+            repository: https://github.com/mobz/elasticsearch-head
+{{- end }}

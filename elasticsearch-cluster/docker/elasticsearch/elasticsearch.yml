@@ -1,0 +1,26 @@
+cluster.name: ${CLUSTER_NAME:elasticsearch-cluster}
+network.host: 0.0.0.0
+
+node.name: ${HOSTNAME}
+node.master: ${NODE_MASTER:false}
+node.data: ${NODE_DATA:false}
+
+bootstrap.memory_lock: true # disable swap on docker
+
+http.enabled: ${HTTP_ENABLED:false}
+http.port: ${HTTP_PORT:9200}
+http.compression: true
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+
+discovery.zen.hosts_provider: kubernetes
+discovery.zen.minimum_master_nodes: 2 # minimum 2 nodes to create cluster reqiured
+
+cloud.kubernetes.service: ${DISCOVERY_SERVICE:elasticsearch-discovery}
+cloud.kubernetes.namespace: ${NAMESPACE:default}
+
+script.engine.groovy.inline.search: true
+plugin.mandatory: discovery-kubernetes
+transport.tcp.port: ${TRANSPORT_PORT:9300}
+
+xpack.security.enabled: false
