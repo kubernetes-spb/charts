@@ -3,6 +3,9 @@ elasticsearch:
   masterReplicasCount: 3 # minimum 3 masters recommended
   dataReplicasCount: 3
 
+  masterNodeSelector: {}
+  dataNodeSelector: {}
+
   port: 9200
   transportPort: 9300
   image:

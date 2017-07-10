@@ -37,6 +37,8 @@ spec:
             }
           }
     spec:
+      nodeSelector:
+{{ toYaml .Values.elasticsearch.masterNodeSelector | indent 8 }}
       containers:
       - name: elasticsearch-master
         securityContext:

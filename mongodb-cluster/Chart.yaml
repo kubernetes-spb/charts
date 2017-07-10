@@ -1,0 +1,3 @@
+description: Mongodb replicaset
+name: mongodb-cluster
+version: 1.0.0
