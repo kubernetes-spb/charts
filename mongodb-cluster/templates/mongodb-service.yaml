@@ -2,17 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ .Release.Name }}
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  {{- if .Values.serviceAnnotations }}
-{{ toYaml .Values.serviceAnnotations | indent 4 }}
-  {{- end }}
   labels:
-    app: {{ template "name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
 spec:
   type: ClusterIP
   clusterIP: None
@@ -20,5 +15,5 @@ spec:
     - name: peer
       port: {{ .Values.port }}
   selector:
-    app: {{ template "name" . }}
-    release: {{ .Release.Name }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}

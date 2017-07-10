@@ -1,25 +1,20 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
+  name: {{ .Release.Name }}
   labels:
-    app: {{ template "name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
-  name: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app: {{ template "fullname" . }}
 spec:
-  serviceName: {{ template "fullname" . }}
+  serviceName: {{ .Release.Name }}
   replicas: {{ .Values.replicas }}
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
-        release: {{ .Release.Name }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
       annotations:
-      {{- if .Values.podAnnotations }}
-{{ toYaml .Values.podAnnotations | indent 8}}
-      {{- end }}
-        pod.alpha.kubernetes.io/init-containers: '[
+        pod.beta.kubernetes.io/init-containers: '[
             {
                 "name": "install",
                 "image": "{{ .Values.installImage.name }}:{{ .Values.installImage.tag }}",
@@ -40,7 +35,7 @@ spec:
                 "name": "bootstrap",
                 "image": "{{ .Values.image.name }}:{{ .Values.image.tag }}",
                 "command": ["/work-dir/peer-finder"],
-                "args": ["-on-start=/work-dir/on-start.sh", "-service={{ template "fullname" . }}"],
+                "args": ["-on-start=/work-dir/on-start.sh", "-service={{ .Release.Name }}"],
                 "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
                 "env": [
                     {
@@ -105,6 +100,8 @@ spec:
             }
         ]'
     spec:
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -115,10 +112,10 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  -  "{{ template "name" . }}"
+                  -  "{{ .Release.Name }}"
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: {{ template "name" . }}
+        - name: mognodb
           image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
@@ -175,7 +172,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ .Release.Name }}
         {{- if .Values.auth.enabled }}
         - name: keydir
           secret:
