@@ -1,0 +1,24 @@
+replicaCount: 3
+image:
+  repository: fulldive/rabbitmq-cluster
+  tag: 0.0.2
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  httpPort: 15672
+  amqpPort: 5672
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    memory: 1Gi
+persistentVolume:
+  enabled: false
+  # storageClass: default
+  # size: 1Gi
+defaultUser: admin
+# defaultPassword:
+# erlangCookie:
+# memoryHighWatermark: 0.4
+nodeSelector: {}

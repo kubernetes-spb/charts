@@ -1,0 +1,118 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  serviceName: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+      annotations:
+        scheduler.beta.kubernetes.io/affinity: |
+          {
+            "podAntiAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": [
+                {
+                  "labelSelector": {
+                    "matchLabels": {
+                        "app": "{{ template "fullname" . }}"
+                      }
+                  },
+                  "topologyKey": "kubernetes.io/hostname"
+                }
+              ]
+            }
+          }
+    spec:
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: {{ .Values.service.httpPort }}
+          - name: amqp
+            protocol: TCP
+            containerPort: {{ .Values.service.amqpPort }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        livenessProbe:
+          exec:
+            command: ["rabbitmqctl", "cluster_status"]
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command: ["rabbitmqctl", "cluster_status"]
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        volumeMounts:
+          - name: storage
+            mountPath: /var/lib/rabbitmq
+        env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+{{- if .Values.memoryHighWatermark }}
+          - name: RABBITMQ_VM_MEMORY_HIGH_WATERMARK
+            value: "{{ .Values.memoryHighWatermark }}"
+{{- end }}
+          - name: RABBITMQ_DEFAULT_USER
+            value: "{{ .Values.defaultUser }}"
+          - name: RABBITMQ_DEFAULT_PASS
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}
+                key: rabbitmq-password
+          - name: K8S_SERVICE_NAME
+            value: "{{ .Release.Name }}"
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: RABBITMQ_NODENAME
+            value: "rabbit@$(MY_POD_IP)"
+          - name: AUTOCLUSTER_TYPE
+            value: "k8s"
+          - name: AUTOCLUSTER_DELAY
+            value: "10"
+          - name: AUTOCLUSTER_FAILURE
+            value: "stop"
+          - name: K8S_ADDRESS_TYPE
+            value: "ip"
+          - name: AUTOCLUSTER_CLEANUP
+            value: "true"
+          - name: CLEANUP_WARN_ONLY
+            value: "false"
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}
+                key: rabbitmq-erlang-cookie
+{{- if .Values.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: storage
+        annotations:
+{{- if .Values.persistentVolume.storageClass }}
+          volume.beta.kubernetes.io/storage-class: {{ .Values.persistentVolume.storageClass | quote }}
+{{- end }}
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolume.size | quote }}
+{{- else }}
+      volumes:
+        - name: storage
+          emptyDir: {}
+{{- end }}

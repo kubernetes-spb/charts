@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Open source message broker software that implements the Advanced Message Queuing Protocol (AMQP)
+name: rabbitmq-cluster
+version: 1.0.0
