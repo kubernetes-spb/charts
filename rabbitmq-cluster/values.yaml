@@ -4,7 +4,6 @@ image:
   tag: 0.0.2
   pullPolicy: IfNotPresent
 service:
-  type: ClusterIP
   httpPort: 15672
   amqpPort: 5672
 resources:

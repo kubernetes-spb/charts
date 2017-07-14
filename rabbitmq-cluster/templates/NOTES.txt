@@ -11,3 +11,7 @@ To Access the RabbitMQ Management interface:
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo URL : http://127.0.0.1:{{ default "15672" .Values.service.httpPort }}
   kubectl port-forward $POD_NAME {{ default "15672" .Values.service.httpPort }}:{{ default "15672" .Values.service.httpPort }}
+
+To set ha policy:
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  kubectl exec $POD_NAME rabbitmqctl set_policy ha-all '.*' '{"ha-mode":"all", "ha-sync-mode":"automatic"}'
