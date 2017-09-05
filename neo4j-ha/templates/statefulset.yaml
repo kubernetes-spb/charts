@@ -69,16 +69,18 @@ ha.server_id=`echo $HOSTNAME | sed s/[^0-9]*//g`\n
             #   value: "{{ .Values.heapSize }}"
             # - name: NEO4J_memory_heap_max__size
             #   value: "{{ .Values.heapSize }}"
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          #   initialDelaySeconds: 60
-          #   timeoutSeconds: 5
-          readinessProbe:
+          livenessProbe:
+            # httpGet:
+            #   path: /
+            #   port: http
             tcpSocket:
-              port: peer
-            timeoutSeconds: 2
+              port: bolt
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+          # readinessProbe:
+          #   tcpSocket:
+          #     port: bolt
+          #   timeoutSeconds: 2
           volumeMounts:
             - name: datadir
               mountPath: /data
@@ -87,5 +89,28 @@ ha.server_id=`echo $HOSTNAME | sed s/[^0-9]*//g`\n
       volumes:
       - name: confdir
         emptyDir: {}
-      - name: datadir
-        emptyDir: {}
+{{- if .Values.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+        annotations:
+        {{- if .Values.persistentVolume.storageClass | quote }}
+          volume.beta.kubernetes.io/storage-class: {{ .Values.persistentVolume.storageClass | quote }}
+        {{- else }}
+          volume.beta.kubernetes.io/storage-class: default
+        {{- end }}
+        {{- range $key, $value := .Values.persistentVolume.annotations }}
+          {{ $key }}: {{ $value }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.persistentVolume.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolume.size | quote }}
+{{- else }}
+        - name: datadir
+          emptyDir: {}
+{{- end }}

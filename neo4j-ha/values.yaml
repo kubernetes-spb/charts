@@ -1,6 +1,6 @@
-# 2do: better automate
+# 2do: generate initialHosts automaticly
 replicaCount: 3
-initialHosts: "test-0.test.default.svc.cluster.local:5001,test-1.test.default.svc.cluster.local:5001,test-2.test.default.svc.cluster.local:5001"
+initialHosts: "neo4j-0.neo4j.default.svc.cluster.local:5001,neo4j-1.neo4j.default.svc.cluster.local:5001,neo4j-2.neo4j.default.svc.cluster.local:5001"
 
 ports:
   http: 7474
@@ -23,5 +23,13 @@ resources:
   requests:
     cpu: 300m
     memory: 2Gi
+
+persistentVolume:
+  enabled: true
+  # storageClass: default
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
 
 # size - # minimal amount is 10Gb for production
