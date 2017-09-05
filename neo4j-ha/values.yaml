@@ -1,0 +1,27 @@
+# 2do: better automate
+replicaCount: 3
+initialHosts: "test-0.test.default.svc.cluster.local:5001,test-1.test.default.svc.cluster.local:5001,test-2.test.default.svc.cluster.local:5001"
+
+ports:
+  http: 7474
+  bolt: 7687
+  peer: 5001
+
+image:
+  repository: neo4j
+  tag: 3.2.3-enterprise
+  pullPolicy: IfNotPresent
+
+nodeSelector: {}
+
+# heapSize: 1G
+# https://neo4j.com/docs/operations-manual/current/performance/
+# 1GB + (size of graph.db/index) + (size of graph.db/schema)
+resources:
+  limits:
+    memory: 2Gi # minimal amount is 2Gb for production
+  requests:
+    cpu: 300m
+    memory: 2Gi
+
+# size - # minimal amount is 10Gb for production

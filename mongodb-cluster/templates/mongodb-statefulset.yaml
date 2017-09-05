@@ -112,7 +112,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  -  "{{ .Release.Name }}"
+                  -  "{{ template "fullname" . }}"
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: mognodb

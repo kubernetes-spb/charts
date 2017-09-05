@@ -1,0 +1,91 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "fullname" . }}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+            {
+                "name": "install",
+                "image": "gcr.io/google_containers/busybox:1.24",
+                "command": ["/bin/sh", "-c", "echo \"
+ha.server_id=`echo $HOSTNAME | sed s/[^0-9]*//g`\n
+                  \" > /work-dir/neo4j.conf" ],
+                "volumeMounts": [
+                    {
+                        "name": "confdir",
+                        "mountPath": "/work-dir"
+                    }
+                ]
+            }
+        ]'
+    spec:
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 5
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  -  "{{ template "fullname" . }}"
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: neo4j
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.http }}
+            - name: bolt
+              containerPort: {{ .Values.ports.bolt }}
+            - name: peer
+              containerPort: {{ .Values.ports.peer }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          env:
+            - name: NEO4J_AUTH
+              value: "neo4j/neo"
+            - name: NEO4J_dbms_mode
+              value: "HA"
+            - name: NEO4J_ha_join__timeout
+              value: "120s"
+            - name: NEO4J_dbms_connectors_default__listen__address
+              value: "0.0.0.0"
+            - name: NEO4J_ha_initialHosts
+              value: "{{ .Values.initialHosts }}"
+            # - name: NEO4J_memory_heap_initial__size
+            #   value: "{{ .Values.heapSize }}"
+            # - name: NEO4J_memory_heap_max__size
+            #   value: "{{ .Values.heapSize }}"
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: peer
+            timeoutSeconds: 2
+          volumeMounts:
+            - name: datadir
+              mountPath: /data
+            - name: confdir
+              mountPath: /conf
+      volumes:
+      - name: confdir
+        emptyDir: {}
+      - name: datadir
+        emptyDir: {}
