@@ -1,4 +1,12 @@
 apiVersion: v1
-description: A Helm chart for Kubernetes
+description: Lightweight connection pooler for PostgreSQL
 name: pgbouncer
 version: 0.0.1
+appVersion: 1.7.2
+home: https://pgbouncer.github.io/
+sources:
+  - https://github.com/pgbouncer/pgbouncer
+  - https://github.com/larseen/pgbouncer_exporter
+maintainers:
+  - name: Maxim Filatov
+    email: pipopolam@gmail.com
