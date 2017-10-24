@@ -4,7 +4,7 @@
 exporter:
   image:
     repository: quay.io/coreos/kube-state-metrics
-    tag: "v1.0.1"
+    tag: "v1.1.0"
     pullPolicy: IfNotPresent
   service:
     name: kube-state-metrics
