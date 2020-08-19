@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
@@ -8,6 +8,8 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  selector:
+    matchLabels: {{ include "pgbouncer.templateSelector" . | nindent 6 }}
   replicas: {{ .Values.replicaCount }}
   strategy:
     rollingUpdate:
