@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
-  repository: quay.io/evilmartians/pgbouncer
-  tag: v1.7.2
+  repository: quay.io/evl.ms/pgbouncer
+  tag: 1.13.0
   pullPolicy: IfNotPresent
 service:
   nxame: pgbouncer
@@ -50,8 +50,8 @@ exporter:
   listen_address: 0.0.0.0
   listen_port: 9127
   image:
-    repository: quay.io/evilmartians/pgbouncer_exporter
-    tag: v0.0.1
+    repository: quay.io/evl.ms/pgbouncer-exporter
+    tag: 0.4.0
     pullPolicy: IfNotPresent
   resources:
     limits:
