@@ -1,7 +1,15 @@
 FROM alpine:3.12
 MAINTAINER Maxim Filatov <bregor@evilmartians.com>
 
+ARG PGBOUCER_VERSION=1.13.0-r0
+
 RUN apk -U upgrade && \
-    apk add -u pgbouncer
+    apk add -u pgbouncer=${PGBOUCER_VERSION}
+
+RUN adduser -s /sbin/nologin -D pgbouncer
+
+USER pgbouncer
+
+ENTRYPOINT ["/usr/bin/pgbouncer"]
 
 EXPOSE 5432

@@ -1,13 +1,33 @@
-FROM alpine:3.12
+ARG PGBOUNCER_EXPORTER_VERSION=0.4.0
+ARG PGBOUNCER_EXPORTER_DIR=pgbouncer_exporter-${PGBOUNCER_EXPORTER_VERSION}.linux-amd64
+ARG PGBOUNCER_EXPORTER_ARCHIVE=${PGBOUNCER_EXPORTER_DIR}.tar.gz
+ARG PGBOUNCER_EXPORTER_URL=https://github.com/prometheus-community/pgbouncer_exporter/releases/download/v${PGBOUNCER_EXPORTER_VERSION}/${PGBOUNCER_EXPORTER_ARCHIVE}
+ARG PGBOUNCER_EXPORTER_SHA256SUM=db0ff24e5ed54e10181b77579e407d3dd86f3a4e8e46de05e09b098947f80f64
+
+FROM alpine:3.12 as downloader
 MAINTAINER Maxim Filatov <bregor@evilmartians.com>
 
-ENV GOOS=linux CGO_ENABLED=0 GOBIN=/
+ARG PGBOUNCER_EXPORTER_VERSION
+ARG PGBOUNCER_EXPORTER_DIR
+ARG PGBOUNCER_EXPORTER_ARCHIVE
+ARG PGBOUNCER_EXPORTER_URL
+ARG PGBOUNCER_EXPORTER_SHA256SUM
 
-RUN apk -U upgrade && \
-    apk add -t build-depends -u git go musl-dev && \
-    go get -v -d github.com/larseen/pgbouncer_exporter && \
-    go build  --ldflags '-s -w --extldflags "-static"' github.com/larseen/pgbouncer_exporter && \
-    rm -fr /root/go && \
-    apk del build-depends
+RUN wget ${PGBOUNCER_EXPORTER_URL} \
+    && echo "${PGBOUNCER_EXPORTER_SHA256SUM}  ${PGBOUNCER_EXPORTER_ARCHIVE}" | sha256sum -c - \
+    && tar -xzf ${PGBOUNCER_EXPORTER_ARCHIVE}
+
+FROM scratch
+
+ARG PGBOUNCER_EXPORTER_VERSION
+ARG PGBOUNCER_EXPORTER_DIR
+ARG PGBOUNCER_EXPORTER_ARCHIVE
+ARG PGBOUNCER_EXPORTER_URL
+ARG PGBOUNCER_EXPORTER_SHA256SUM
+
+COPY --from=downloader /${PGBOUNCER_EXPORTER_DIR}/pgbouncer_exporter /
 
 EXPOSE 9127
+
+ENTRYPOINT ["/pgbouncer_exporter", "--pgBouncer.connectionString=postgres://pgbouncer:@localhost:5432/pgbouncer?sslmode=disable"]
+
