@@ -70,8 +70,8 @@ spec:
           command:
             - /pgbouncer_exporter
           args:
-            - -pgBouncer.connectionString=postgres://pgbouncer:pgbouncer@127.0.0.1:{{ .Values.pgbouncer.listen_port }}/pgbouncer?sslmode=disable
-            - -web.listen-address={{ .Values.exporter.listen_address }}:{{ .Values.exporter.listen_port }}
+            - --pgBouncer.connectionString=postgres://pgbouncer:pgbouncer@127.0.0.1:{{ .Values.pgbouncer.listen_port }}/pgbouncer?sslmode=disable
+            - --web.listen-address={{ .Values.exporter.listen_address }}:{{ .Values.exporter.listen_port }}
           livenessProbe:
             httpGet:
               port: {{ .Values.exporter.listen_port }}

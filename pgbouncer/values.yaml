@@ -4,7 +4,7 @@ image:
   tag: 1.13.0
   pullPolicy: IfNotPresent
 service:
-  nxame: pgbouncer
+  name: pgbouncer
   type: ClusterIP
   externalPort: 5432
 resources:
@@ -60,3 +60,7 @@ exporter:
     requests:
       cpu: 100m
       memory: 128Mi
+  serviceMonitor:
+    enabled: false
+    labels:
+      release: prometheus-operator
