@@ -33,25 +33,25 @@ spec:
       affinity:
       {{- if .Values.podAntiAffinity.enabled }}
         podAntiAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                      - key: app
-                        operator: In
-                        values:
-                          - {{ template "pgbouncer.name" . }}
-                      - key: release
-                        operator: In
-                        values:
-                          - {{ .Release.Name }}
-                  topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ template "pgbouncer.name" . }}
+                    - key: release
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}
+                topologyKey: "kubernetes.io/hostname"
       {{- end }}
       {{- if .Values.affinity }}
 {{ toYaml .Values.affinity | indent 8 }}
       {{- end }}
-    {{- end }}
+      {{- end }}
     {{- if .Values.tolerations }}
       tolerations:
 {{ toYaml .Values.tolerations | indent 6 }}

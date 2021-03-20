@@ -1,7 +1,7 @@
 apiVersion: v2
 description: Lightweight connection pooler for PostgreSQL
 name: pgbouncer
-version: 0.0.4
+version: 0.0.5
 appVersion: 1.13.0
 home: https://pgbouncer.github.io/
 sources:
