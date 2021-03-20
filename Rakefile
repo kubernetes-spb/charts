@@ -1,33 +1,35 @@
 require 'yaml'
 
+REPO_SUBDIR = 'repo'.freeze
+
 def charts
-  result = []
-  Dir["*"].map {|f| f if File.directory?(f)}.compact.each do |dir|
+  charts = Dir['*'].select { |f| File.directory?(f) and File.file?("#{f}/Chart.yaml") }
+
+  charts.compact.map do |dir|
     chart = YAML.load_file("#{dir}/Chart.yaml")
-    result << {
+    {
       name: chart['name'],
       tarball: "#{chart['name']}-#{chart['version']}.tgz",
       version: chart['version'],
     }
   end
-  return result
 end
 
-task :default => :publish
+task default: :publish
 
 task :package do
   charts.each do |chart|
-    sh "helm package #{chart[:name]}" unless File.exists?(chart[:tarball])
+    sh "helm package -d #{REPO_SUBDIR} #{chart[:name]}" unless File.file?("#{REPO_SUBDIR}/#{chart[:tarball]}")
   end
 end
 
 task :index => :package do
-  repo_url = ENV['HELM_REPO'] || 'https://kubernetes-spb.github.io/charts'
-  sh "helm repo index . --url=#{repo_url}"
+  repo_url = ENV['HELM_REPO'] || "https://kubernetes-spb.github.io/charts/#{REPO_SUBDIR}"
+  sh "helm repo index #{REPO_SUBDIR} --url=#{repo_url}"
 end
 
 task :publish => :index do
-  sh "git add index.yaml #{charts.map {|c| c[:tarball]}.join(' ')}"
+  sh "git add #{REPO_SUBDIR}/index.yaml #{charts.map { |c| "#{REPO_SUBDIR}/#{c[:tarball]}" }.join(' ')}"
   sh "git commit -m 'Helm repo reindexed at #{Time.now}'"
-  sh "git push"
+  sh 'git push origin master'
 end
