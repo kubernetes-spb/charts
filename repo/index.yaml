@@ -1,0 +1,90 @@
+apiVersion: v1
+entries:
+  elasticsearch-cluster:
+  - apiVersion: v1
+    created: "2021-03-20T17:46:22.309224+03:00"
+    description: Elasticsearch cluster
+    digest: cd16a141b62a6f650b8a9f00f4ee2fb2070062161fa712bf47212d987ec24124
+    name: elasticsearch-cluster
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/elasticsearch-cluster-1.0.1.tgz
+    version: 1.0.1
+  kube-state-metrics:
+  - apiVersion: v1
+    appVersion: 1.0.1
+    created: "2021-03-20T17:46:22.309732+03:00"
+    description: Add-on agent to generate and expose cluster-level metrics for Kubernetes
+    digest: 1c184484337f5364b9438bf2730b2509590db2de3f212ec7ca11993b5422dcc7
+    home: https://github.com/kubernetes/kube-state-metrics
+    maintainers:
+    - email: pipopolam@gmail.com
+      name: Maxim Filatov
+    name: kube-state-metrics
+    sources:
+    - https://github.com/kubernetes/kube-state-metrics
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/kube-state-metrics-0.0.1.tgz
+    version: 0.0.1
+  mongodb-cluster:
+  - apiVersion: v1
+    created: "2021-03-20T17:46:22.310355+03:00"
+    description: Mongodb replicaset
+    digest: 7129b593dde965a156d70e930331bced7dce7d1dbbe57608d14aab68ea86052b
+    name: mongodb-cluster
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/mongodb-cluster-1.0.0.tgz
+    version: 1.0.0
+  neo4j-ha:
+  - apiVersion: v1
+    created: "2021-03-20T17:46:22.310752+03:00"
+    description: A Helm chart for Kubernetes
+    digest: 17da9ffe6dabacc9ea4cec4260fced87d561c96d3191d3a616cf6687e961b131
+    name: neo4j-ha
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/neo4j-ha-0.1.0.tgz
+    version: 0.1.0
+  pgbouncer:
+  - apiVersion: v2
+    appVersion: 1.13.0
+    created: "2021-03-20T17:46:22.31178+03:00"
+    description: Lightweight connection pooler for PostgreSQL
+    digest: f889d27a38dc73a0d29490eb4d168f9cff96cca32464d61b4c28c63a9c88d3fc
+    home: https://pgbouncer.github.io/
+    maintainers:
+    - email: pipopolam@gmail.com
+      name: Maxim Filatov
+    - email: agon.smith@gmail.com
+      name: Kir Kuznetsov
+    name: pgbouncer
+    sources:
+    - https://github.com/pgbouncer/pgbouncer
+    - https://github.com/larseen/pgbouncer_exporter
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/pgbouncer-0.0.3.tgz
+    version: 0.0.3
+  rabbitmq-cluster:
+  - apiVersion: v1
+    created: "2021-03-20T17:46:22.31481+03:00"
+    description: Open source message broker software that implements the Advanced
+      Message Queuing Protocol (AMQP)
+    digest: 545417ac84649d8285ecbc0ab316ae32ded2761edb2d176cf53169012381f338
+    name: rabbitmq-cluster
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/rabbitmq-cluster-1.0.0.tgz
+    version: 1.0.0
+  sysbench:
+  - apiVersion: v1
+    created: "2021-03-20T17:46:22.315298+03:00"
+    description: A Helm chart for sysbench utility installation
+    digest: e3784422d3375676a7e84a8fe18d0ecc92cefc194f5cd04134109a95c4c2ef8c
+    keywords:
+    - sysbench
+    - benchmark
+    maintainers:
+    - email: bregor@evilmartians.com
+      name: Maxim Filatov
+    name: sysbench
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/sysbench-0.0.1.tgz
+    version: 0.0.1
+generated: "2021-03-20T17:46:22.306398+03:00"
