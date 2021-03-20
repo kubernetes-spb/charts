@@ -15,6 +15,14 @@ resources:
    cpu: 100m
    memory: 128Mi
 
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+affinity: {}
+podAntiAffinity:
+  enabled: true
+
 pgbouncer:
   admin_users: pgbouncer
   stats_users: pgbouncer

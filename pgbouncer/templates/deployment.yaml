@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "pgbouncer.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "pgbouncer.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -26,13 +26,36 @@ spec:
         prometheus.io/scrape: "true"
         {{- end }}
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "pgbouncer.name" . }}
         release: {{ .Release.Name }}
     spec:
+    {{- if or .Values.podAntiAffinity.enabled .Values.affinity }}
+      affinity:
+      {{- if .Values.podAntiAffinity.enabled }}
+        podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - {{ template "pgbouncer.name" . }}
+                      - key: release
+                        operator: In
+                        values:
+                          - {{ .Release.Name }}
+                  topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+      {{- if .Values.affinity }}
+{{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+    {{- end }}
       volumes:
         - name: config
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ template "pgbouncer.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

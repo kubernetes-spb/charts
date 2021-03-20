@@ -3,16 +3,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata: 
-  name: {{ template "fullname" . }}
+  name: {{ template "pgbouncer.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "pgbouncer.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
 {{ .Values.exporter.serviceMonitor.labels | toYaml | indent 4 }}
 spec:
   selector:
     matchLabels: 
-      app: {{ template "name" . }}
+      app: {{ template "pgbouncer.name" . }}
       release: {{ .Release.Name }}
   endpoints:
     - honorLabels: true
