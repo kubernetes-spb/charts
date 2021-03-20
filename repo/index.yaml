@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   elasticsearch-cluster:
   - apiVersion: v1
-    created: "2021-03-21T01:37:34.646017+03:00"
+    created: "2021-03-21T02:02:09.655613+03:00"
     description: Elasticsearch cluster
     digest: cd16a141b62a6f650b8a9f00f4ee2fb2070062161fa712bf47212d987ec24124
     name: elasticsearch-cluster
@@ -12,7 +12,7 @@ entries:
   kube-state-metrics:
   - apiVersion: v1
     appVersion: 1.0.1
-    created: "2021-03-21T01:37:34.646764+03:00"
+    created: "2021-03-21T02:02:09.657922+03:00"
     description: Add-on agent to generate and expose cluster-level metrics for Kubernetes
     digest: 1c184484337f5364b9438bf2730b2509590db2de3f212ec7ca11993b5422dcc7
     home: https://github.com/kubernetes/kube-state-metrics
@@ -27,7 +27,7 @@ entries:
     version: 0.0.1
   mongodb-cluster:
   - apiVersion: v1
-    created: "2021-03-21T01:37:34.647833+03:00"
+    created: "2021-03-21T02:02:09.659045+03:00"
     description: Mongodb replicaset
     digest: 7129b593dde965a156d70e930331bced7dce7d1dbbe57608d14aab68ea86052b
     name: mongodb-cluster
@@ -36,7 +36,7 @@ entries:
     version: 1.0.0
   neo4j-ha:
   - apiVersion: v1
-    created: "2021-03-21T01:37:34.649091+03:00"
+    created: "2021-03-21T02:02:09.659817+03:00"
     description: A Helm chart for Kubernetes
     digest: 17da9ffe6dabacc9ea4cec4260fced87d561c96d3191d3a616cf6687e961b131
     name: neo4j-ha
@@ -46,7 +46,25 @@ entries:
   pgbouncer:
   - apiVersion: v2
     appVersion: 1.13.0
-    created: "2021-03-21T01:37:34.650495+03:00"
+    created: "2021-03-21T02:02:09.6628+03:00"
+    description: Lightweight connection pooler for PostgreSQL
+    digest: 9a05963586258a36366b56809a2cc01105e3460eb53062ad9fbfe15b61f5759a
+    home: https://pgbouncer.github.io/
+    maintainers:
+    - email: pipopolam@gmail.com
+      name: Maxim Filatov
+    - email: agon.smith@gmail.com
+      name: Kir Kuznetsov
+    name: pgbouncer
+    sources:
+    - https://github.com/pgbouncer/pgbouncer
+    - https://github.com/larseen/pgbouncer_exporter
+    urls:
+    - https://kubernetes-spb.github.io/charts/repo/pgbouncer-0.0.5.tgz
+    version: 0.0.5
+  - apiVersion: v2
+    appVersion: 1.13.0
+    created: "2021-03-21T02:02:09.662124+03:00"
     description: Lightweight connection pooler for PostgreSQL
     digest: 3982aed9af52c6c2a3dd98a474246ac7ecbe5457741a0c154a22483bb0822710
     home: https://pgbouncer.github.io/
@@ -64,7 +82,7 @@ entries:
     version: 0.0.4
   - apiVersion: v2
     appVersion: 1.13.0
-    created: "2021-03-21T01:37:34.64996+03:00"
+    created: "2021-03-21T02:02:09.660846+03:00"
     description: Lightweight connection pooler for PostgreSQL
     digest: f889d27a38dc73a0d29490eb4d168f9cff96cca32464d61b4c28c63a9c88d3fc
     home: https://pgbouncer.github.io/
@@ -82,7 +100,7 @@ entries:
     version: 0.0.3
   rabbitmq-cluster:
   - apiVersion: v1
-    created: "2021-03-21T01:37:34.654679+03:00"
+    created: "2021-03-21T02:02:09.667652+03:00"
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: 545417ac84649d8285ecbc0ab316ae32ded2761edb2d176cf53169012381f338
@@ -92,7 +110,7 @@ entries:
     version: 1.0.0
   sysbench:
   - apiVersion: v1
-    created: "2021-03-21T01:37:34.655738+03:00"
+    created: "2021-03-21T02:02:09.66839+03:00"
     description: A Helm chart for sysbench utility installation
     digest: e3784422d3375676a7e84a8fe18d0ecc92cefc194f5cd04134109a95c4c2ef8c
     keywords:
@@ -105,4 +123,4 @@ entries:
     urls:
     - https://kubernetes-spb.github.io/charts/repo/sysbench-0.0.1.tgz
     version: 0.0.1
-generated: "2021-03-21T01:37:34.638918+03:00"
+generated: "2021-03-21T02:02:09.65126+03:00"
