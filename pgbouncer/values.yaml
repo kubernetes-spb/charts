@@ -19,6 +19,9 @@ podDisruptionBudget:
   enabled: true
   maxUnavailable: 1
 
+nodeSelector: {}
+tolerations: []
+
 affinity: {}
 podAntiAffinity:
   enabled: true
